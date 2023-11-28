@@ -173,4 +173,10 @@ public class CommonServiceImpl implements ICommonService {
         }
         return "";
     }
+
+    @Override
+    @DS(DSTypeEnum.SLAVE)
+    public void channelIssued(String innSql) {
+        sqlService.insert(innSql);
+    }
 }

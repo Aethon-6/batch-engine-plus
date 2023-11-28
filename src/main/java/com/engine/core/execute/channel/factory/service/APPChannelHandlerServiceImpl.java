@@ -5,6 +5,7 @@ import com.engine.active.service.IEngineCustomerIssuedBatchService;
 import com.engine.config.RedisIdMaker;
 import com.engine.core.execute.channel.factory.ChannelFactory;
 import com.engine.core.execute.channel.factory.ChannelHandler;
+import com.engine.core.execute.common.service.ICommonService;
 import com.engine.entity.vo.LabelInfoVO;
 import com.engine.entity.vo.NodeVO;
 import com.engine.sql.service.ISqlService;
@@ -34,6 +35,9 @@ public class APPChannelHandlerServiceImpl extends ChannelHandler {
 
     @Resource
     private ISqlService sqlService;
+
+    @Resource
+    private ICommonService commonService;
 
     public boolean generate(NodeVO node, String tempTable, List<LabelInfoVO> labels) {
         LOGGER.info("[APP渠道执行开始]");
@@ -70,7 +74,7 @@ public class APPChannelHandlerServiceImpl extends ChannelHandler {
         String selSql = "SELECT '" + batchNo + "' AS batch_no ,i.id as customer_id ,'" + contentStr + "' AS content ,'" + newDateTime + "' AS create_time FROM engine_customer_info i " + inn + "where t.node_code = '" + node.getCode() + "'";
 
         String insSql = "INSERT INTO engine_customer_app_issued (batch_no, customer_id, content, use_flag, create_time) " + selSql;
-        sqlService.insert(insSql);
+        commonService.channelIssued(insSql);
         LOGGER.info("[APP渠道执行结束]");
         return r;
     }

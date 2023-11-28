@@ -35,4 +35,11 @@ public interface ICommonService {
      * @return
      */
     boolean jsonValidator(String json);
+
+    /**
+     * 渠道下发
+     *
+     * @param innSql insert sql语句
+     */
+    void channelIssued(String innSql);
 }
