@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.engine.active.mapper.EngineCustomerSmsIssuedMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.engine.active.entity.EngineCustomerSmsIssued">
+        <id column="id" property="id" />
+        <result column="batch_no" property="batchNo" />
+        <result column="customer_id" property="customerId" />
+        <result column="content" property="content" />
+        <result column="use_flag" property="useFlag" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+</mapper>
