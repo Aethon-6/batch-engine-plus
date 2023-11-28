@@ -135,30 +135,7 @@ class EngineApplicationTests {
 
     @Test
     void generatorData() throws InterruptedException {
-        String sTime = "1999-01-01 08:00:00";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime sLocalDateTime = LocalDateTime.parse(sTime, formatter);
-
-        Random random = new Random();
-
-        String[] xbs = {"N", "M", "F"};
-        String[] names = {"A", "B", "C", "E", "F", "J", "H", "I", "O", "P", "L", "M"};
-
-        for (int i = 0; i < 200000; i++) {
-            EngineCustomerInfo customerInfo = EngineCustomerInfo.builder()
-                    .name(names[random.nextInt(12)] + "_" + (i + 1))
-                    .age(random.nextInt(90))
-                    .build();
-            engineCustomerInfoService.save(customerInfo);
-
-            EngineCustomerRklk customerRklk = EngineCustomerRklk.builder()
-                    .khwybh(customerInfo.getId())
-                    .khnl(customerInfo.getAge())
-                    .xb(xbs[random.nextInt(2)])
-                    .khrq(sLocalDateTime.plusDays(random.nextInt(365)))
-                    .build();
-            engineCustomerRklkService.save(customerRklk);
-        }
+        commonService.generatorData();
 
         /*int index = 29634;
         while (index > 200000) {

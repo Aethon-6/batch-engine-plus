@@ -42,4 +42,6 @@ public interface ICommonService {
      * @param innSql insert sql语句
      */
     void channelIssued(String innSql);
+
+    void generatorData();
 }

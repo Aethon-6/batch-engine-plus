@@ -2,7 +2,11 @@ package com.engine.core.execute.common.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.engine.active.entity.EngineCustomerInfo;
+import com.engine.active.entity.EngineCustomerRklk;
 import com.engine.active.entity.EngineLabelConfig;
+import com.engine.active.service.IEngineCustomerInfoService;
+import com.engine.active.service.IEngineCustomerRklkService;
 import com.engine.active.service.IEngineLabelConfigService;
 import com.engine.aop.annotation.DS;
 import com.engine.core.execute.common.service.ICommonService;
@@ -18,8 +22,11 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -27,11 +34,18 @@ import java.util.stream.Collectors;
 @Service
 public class CommonServiceImpl implements ICommonService {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    private final Pattern PATTERN = Pattern.compile("\\$\\{(.*?)\\}");
     @Resource
     private IEngineLabelConfigService engineLabelConfigService;
 
     @Resource
     private ISqlService sqlService;
+
+    @Resource
+    private IEngineCustomerInfoService engineCustomerInfoService;
+
+    @Resource
+    private IEngineCustomerRklkService engineCustomerRklkService;
 
     @Override
     public List<EngineLabelConfig> extractLabel(List<NodeVO> nodes, List<NodeRelationVO> relations) {
@@ -41,7 +55,9 @@ public class CommonServiceImpl implements ICommonService {
             if ("choose".equals(node.getNodeType())) {
                 for (LabelVO label : node.getNodeInfo()) {
                     String key = label.getKey().toUpperCase();
-                    if (wheres.contains(key)) continue;
+                    if (wheres.contains(key)) {
+                        continue;
+                    }
                     wheres.add(key);
                 }
             }
@@ -50,11 +66,13 @@ public class CommonServiceImpl implements ICommonService {
             CommunicateInfoVO communicateInfo = node.getCommunicateInfo();
             if ("communicate".equals(node.getNodeType()) && communicateInfo != null) {
                 String content = communicateInfo.getContent();
-                Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
-                Matcher matcher = pattern.matcher(content);
+
+                Matcher matcher = PATTERN.matcher(content);
                 while (matcher.find()) {
                     String key = matcher.group(1).toUpperCase();
-                    if (wheres.contains(key)) continue;
+                    if (wheres.contains(key)) {
+                        continue;
+                    }
                     wheres.add(key);
                 }
             }
@@ -178,5 +196,34 @@ public class CommonServiceImpl implements ICommonService {
     @DS(DSTypeEnum.SLAVE)
     public void channelIssued(String innSql) {
         sqlService.insert(innSql);
+    }
+
+    @Override
+    @DS(DSTypeEnum.SLAVE)
+    public void generatorData() {
+        String sTime = "1999-01-01 08:00:00";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime sLocalDateTime = LocalDateTime.parse(sTime, formatter);
+
+        Random random = new Random();
+
+        String[] xbs = {"N", "M", "F"};
+        String[] names = {"A", "B", "C", "E", "F", "J", "H", "I", "O", "P", "L", "M"};
+
+        for (int i = 5721; i < 200000; i++) {
+            EngineCustomerInfo customerInfo = EngineCustomerInfo.builder()
+                    .name(names[random.nextInt(12)] + "_" + (i + 1))
+                    .age(random.nextInt(90))
+                    .build();
+            engineCustomerInfoService.save(customerInfo);
+
+            EngineCustomerRklk customerRklk = EngineCustomerRklk.builder()
+                    .khwybh(customerInfo.getId())
+                    .khnl(customerInfo.getAge())
+                    .xb(xbs[random.nextInt(2)])
+                    .khrq(sLocalDateTime.plusDays(random.nextInt(365)))
+                    .build();
+            engineCustomerRklkService.save(customerRklk);
+        }
     }
 }
